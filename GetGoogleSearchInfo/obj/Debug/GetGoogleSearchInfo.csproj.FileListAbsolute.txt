@@ -1,0 +1,10 @@
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\GetGoogleSearchInfo.exe.config
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\GetGoogleSearchInfo.exe
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\GetGoogleSearchInfo.pdb
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.csprojAssemblyReference.cache
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.Form1.resources
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.Properties.Resources.resources
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.csproj.GenerateResource.cache
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.csproj.CoreCompileInputs.cache
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.exe
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.pdb
