@@ -8,3 +8,6 @@ C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\Ge
 C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.csproj.CoreCompileInputs.cache
 C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.exe
 C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.pdb
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\WebDriver.dll
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\WebDriver.xml
+C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.csproj.CopyComplete
