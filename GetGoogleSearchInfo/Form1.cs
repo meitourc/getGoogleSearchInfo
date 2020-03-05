@@ -55,7 +55,7 @@ namespace GetGoogleSearchInfo
             //string html = sr.ReadToEnd();
             //st.Close();
             string html = getSearchResultHtml(url);
-            Console.WriteLine(html);
+            //Console.WriteLine(html);
 
 
 
@@ -115,22 +115,44 @@ namespace GetGoogleSearchInfo
 
             string pattern = "";
             //pattern = "imgTagWrapperId(.*)</h3>";
-            
-            pattern = "<h3(.*)</h3>";
 
-            Regex regex = new Regex(pattern);
-            Match match = regex.Match(html);
+           //html = @"ccc<h3 class=aaa>test</h3>ddd<h3 class=aaa>test2</h3>ddd";
+            //html = @"ccc<h3 class=aaa>test</h3>";
 
-            
-            foreach (var item in match.Groups)
+            html = @"aaa<h3>test</h3><h3>test2</h3>bbb";
+            html = @"<h3>aba</h3>";
+            //pattern = @"<h3(.*?)</h3>";
+
+
+            pattern = @"<h3>(.*?)</h3>";
+            pattern = @"<h3>(aba)</h3>";
+
+
+            //pattern = @"<h3[^>]*>(.*)</h3>";
+
+
+            //Regex regex = new Regex(pattern);
+            //Match match = regex.Match(html);
+
+
+            //MatchCollection matche = Regex.Matches(html, @"<h3.*>(.*?)</h3>");
+            MatchCollection matche = Regex.Matches(html, pattern);
+
+            foreach (Match m in matche)
             {
                 Console.WriteLine("\n--takuma--\n");
-                Console.WriteLine(item);
+                //Console.WriteLine(m.Groups[1]);
+                Console.WriteLine(m.Value);
                 Console.WriteLine("\n--takuma--\n");
 
-
-
             }
+
+            //foreach (var item in match.Groups)
+            //{
+            //    Console.WriteLine("\n--takuma--\n");
+            //    Console.WriteLine(item);
+            //    Console.WriteLine("\n--takuma--\n");
+            //}
 
         }
     }
