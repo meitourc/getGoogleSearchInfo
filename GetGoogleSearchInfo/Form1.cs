@@ -34,10 +34,16 @@ namespace GetGoogleSearchInfo
         static string DELIMITER = ","; //CSV読み書き用区切り文字
         static string DOUBLE_QUOTATION = "\""; //ダブルクォーテーション
         static string LINE_FEED_CODE = "\r\n"; //改行コード
+        static List<SearchResultData> searchResultDataList = new List<SearchResultData>(); //CSV読み込みデータ格納リスト
 
         public Form1()
         {
             InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            button_exec_control();
         }
 
         /// <summary>
@@ -47,7 +53,10 @@ namespace GetGoogleSearchInfo
         /// <param name="e"></param>
         private void button_getData_Click(object sender, EventArgs e)
         {
-            string url = "https://www.google.co.jp/search?q=テスト&ie=UTF-8&oe=UTF-8&num=20";
+            string keyWord = textBox1.Text;
+            //string url = "https://www.google.co.jp/search?q=テスト&ie=UTF-8&oe=UTF-8&num=20";
+            string url = "https://www.google.co.jp/search?q= " + keyWord  + "&ie=UTF-8&oe=UTF-8&num=20";
+
             //WebClient wc = new WebClient();
             //Stream st = wc.OpenRead("https://www.google.co.jp/search?q=テスト&ie=UTF-8&oe=UTF-8&num=20");
             //Encoding enc = Encoding.GetEncoding("UTF-8");
@@ -61,6 +70,22 @@ namespace GetGoogleSearchInfo
 
             //scrapingData(html);
 
+
+        }
+
+        /// <summary>
+        /// 実行ボタンの活性/非活性のコントロール処理
+        /// </summary>
+        void button_exec_control()
+        {
+            if (textBox1.Text != "")
+            {
+                button_getData.Enabled = true;
+            }
+            else
+            {
+                button_getData.Enabled = false;
+            }
 
         }
 
@@ -107,6 +132,10 @@ namespace GetGoogleSearchInfo
         }
 
 
+        /// <summary>
+        /// グーグル検索結果取得処理
+        /// </summary>
+        /// <param name="html"></param>
         private void scrapingData(string html)
         {
 
@@ -119,18 +148,17 @@ namespace GetGoogleSearchInfo
            //html = @"ccc<h3 class=aaa>test</h3>ddd<h3 class=aaa>test2</h3>ddd";
             //html = @"ccc<h3 class=aaa>test</h3>";
 
-            html = @"aaa<h3>test</h3><h3>test2</h3>bbb";
-            html = @"<h3>aba</h3>";
+            //html = @"aaa<h3>test</h3><h3>test2</h3>bbb";
+            //html = @"<h3>aba</h3>";
             //pattern = @"<h3(.*?)</h3>";
 
 
             pattern = @"<h3>(.*?)</h3>";
             pattern = @"<h3>(aba)</h3>";
+            pattern = @"<h3.*?>(.*?)</h3>";
 
 
             //pattern = @"<h3[^>]*>(.*)</h3>";
-
-
             //Regex regex = new Regex(pattern);
             //Match match = regex.Match(html);
 
@@ -138,15 +166,38 @@ namespace GetGoogleSearchInfo
             //MatchCollection matche = Regex.Matches(html, @"<h3.*>(.*?)</h3>");
             MatchCollection matche = Regex.Matches(html, pattern);
 
+            int id = 1;
             foreach (Match m in matche)
             {
                 Console.WriteLine("\n--takuma--\n");
                 //Console.WriteLine(m.Groups[1]);
-                Console.WriteLine(m.Value);
+
+                //\)">(.*?)<
+                //string pattern2 = "\\)\" > (.*?) < ";
+                string pattern2 = "\\)\">(.*?)<";
+
+                Regex regex = new Regex(pattern2);
+                Match match = regex.Match(m.Value);
+
+                string siteTitle = match.Value;
+                siteTitle = siteTitle.Replace(")\">","");
+                siteTitle = siteTitle.Replace("<", "");
+
+                SearchResultData searchResultData = new SearchResultData();
+
+                searchResultData.id = id;
+                searchResultData.keyWord = textBox1.Text;
+                searchResultData.title = siteTitle;
+                DateTime dt = DateTime.Now;
+                searchResultData.getDate = dt.ToString();
+
+                searchResultDataList.Add(searchResultData);
+                //Console.WriteLine(m.Value);
+                Console.WriteLine(siteTitle);
                 Console.WriteLine("\n--takuma--\n");
-
+                id++;
             }
-
+            csvWrite();
             //foreach (var item in match.Groups)
             //{
             //    Console.WriteLine("\n--takuma--\n");
@@ -155,6 +206,44 @@ namespace GetGoogleSearchInfo
             //}
 
         }
+
+        /// <summary>
+        /// CSV書き込み
+        /// </summary>
+        private void csvWrite()
+        {
+            string output_file_path = @".\test.csv";
+
+
+            System.IO.StreamWriter sw = new System.IO.StreamWriter(
+                output_file_path,
+                false,
+                System.Text.Encoding.Default);
+
+            string strData = ""; //1行分のデータ
+
+            foreach (var data in searchResultDataList)
+            {
+                strData = data.id + DELIMITER
+                    + data.keyWord + DELIMITER
+                    + data.title + DELIMITER
+                    + data.getDate;
+                sw.WriteLine(strData);
+            }
+            sw.Close();
+        }
+    
+        /// <summary>
+        /// キーワードテキストボックス変更時処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            button_exec_control();
+        }
+
+
     }
 }
 
