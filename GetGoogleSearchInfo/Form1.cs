@@ -63,12 +63,16 @@ namespace GetGoogleSearchInfo
             //StreamReader sr = new StreamReader(st, enc);
             //string html = sr.ReadToEnd();
             //st.Close();
+
+            //htmlデータ取得
             string html = getSearchResultHtml(url);
             //Console.WriteLine(html);
 
+            //スクレイピング処理
+            scrapingData(html);
 
-
-            //scrapingData(html);
+            //CSV書き込み
+            csvWrite();
 
 
         }
@@ -126,7 +130,7 @@ namespace GetGoogleSearchInfo
                 //HTMLを取得する。
                 html = sr.ReadToEnd();
                 //Console.WriteLine(html);
-                scrapingData(html);
+                //scrapingData(html);
             }
             return html;
         }
@@ -153,8 +157,8 @@ namespace GetGoogleSearchInfo
             //pattern = @"<h3(.*?)</h3>";
 
 
-            pattern = @"<h3>(.*?)</h3>";
-            pattern = @"<h3>(aba)</h3>";
+            //pattern = @"<h3>(.*?)</h3>";
+            //pattern = @"<h3>(aba)</h3>";
             pattern = @"<h3.*?>(.*?)</h3>";
 
 
@@ -165,10 +169,20 @@ namespace GetGoogleSearchInfo
 
             //MatchCollection matche = Regex.Matches(html, @"<h3.*>(.*?)</h3>");
             MatchCollection matche = Regex.Matches(html, pattern);
-
+            
             int id = 1;
             foreach (Match m in matche)
             {
+                Console.WriteLine("\n--aaaa--\n");
+
+                //Console.WriteLine(m.Value);
+
+                Console.WriteLine(m.Groups[1]);
+
+                Console.WriteLine("\n--aaaa--\n");
+
+
+
                 Console.WriteLine("\n--takuma--\n");
                 //Console.WriteLine(m.Groups[1]);
 
@@ -187,7 +201,7 @@ namespace GetGoogleSearchInfo
 
                 searchResultData.id = id;
                 searchResultData.keyWord = textBox1.Text;
-                searchResultData.title = siteTitle;
+                searchResultData.title = @siteTitle;
                 DateTime dt = DateTime.Now;
                 searchResultData.getDate = dt.ToString();
 
@@ -197,7 +211,7 @@ namespace GetGoogleSearchInfo
                 Console.WriteLine("\n--takuma--\n");
                 id++;
             }
-            csvWrite();
+
             //foreach (var item in match.Groups)
             //{
             //    Console.WriteLine("\n--takuma--\n");
@@ -212,15 +226,17 @@ namespace GetGoogleSearchInfo
         /// </summary>
         private void csvWrite()
         {
-            string output_file_path = @".\test.csv";
-
-
+            string output_file_path = @".\googleSearchResult.csv";
             System.IO.StreamWriter sw = new System.IO.StreamWriter(
                 output_file_path,
                 false,
                 System.Text.Encoding.Default);
 
             string strData = ""; //1行分のデータ
+
+            //ヘッダ書き込み
+            strData = "id" + DELIMITER + "keyword" + DELIMITER + "title" + DELIMITER + "date";
+            sw.WriteLine(strData);
 
             foreach (var data in searchResultDataList)
             {
