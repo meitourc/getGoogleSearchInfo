@@ -25,7 +25,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using System.Xml.Linq;
 
 namespace GetGoogleSearchInfo
 {
@@ -192,16 +192,46 @@ namespace GetGoogleSearchInfo
 
             var req = (HttpWebRequest)WebRequest.Create(suggestUrl);
             req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
-            string html = "";
+            string suggestData = "";
+            
             //指定したURLに対してrequestを投げてresponseを取得
             using (var res = (HttpWebResponse)req.GetResponse())
             using (var resSt = res.GetResponseStream())
             using (var sr = new StreamReader(resSt, Encoding.UTF8))
+                {
+                    //HTMLを取得する。
+                    suggestData = sr.ReadToEnd();
+                }
+
+
+            //xmlファイルを指定する
+
+            //XElement xml = XElement.Load(@"sample.xml");
+            //XElement xml = XElement.Load(@".\sample.xml");
+            ////メンバー情報のタグ内の情報を取得する
+            //IEnumerable<XElement> infos = from item in xml.Elements("メンバー情報")
+            //                              select item;
+
+            ////メンバー情報分ループして、コンソールに表示
+            //foreach (XElement info in infos)
+            //{
+            //    Console.Write(info.Element("名前").Value + @",");
+            //    Console.Write(info.Element("住所").Value + @",");
+            //    Console.WriteLine(info.Element("年齢").Value);
+            //}
+
+            XElement xml = XElement.Load(@".\search.xml");
+
+            IEnumerable<XElement> infos = from item in xml.Elements("CompleteSuggestion")
+                                          select item;
+
+            //メンバー情報分ループして、コンソールに表示
+            foreach (XElement info in infos)
             {
-                //HTMLを取得する。
-                html = sr.ReadToEnd();
+                
+                Console.WriteLine(info.Element("suggestion data").Value);
             }
-            Console.WriteLine(html);
+
         }
     }
 }

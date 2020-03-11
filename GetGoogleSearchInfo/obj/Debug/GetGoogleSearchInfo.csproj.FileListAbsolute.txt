@@ -11,3 +11,14 @@ C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\Ge
 C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\WebDriver.dll
 C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\WebDriver.xml
 C:\Users\meito\source\repos\GetGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.csproj.CopyComplete
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\GetGoogleSearchInfo.exe.config
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.exe
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.pdb
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\GetGoogleSearchInfo.exe
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\GetGoogleSearchInfo.pdb
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\WebDriver.dll
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\bin\Debug\WebDriver.xml
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.csprojResolveAssemblyReference.cache
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.Form1.resources
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.Properties.Resources.resources
+C:\dev\mydev\getGoogleSearchInfo\GetGoogleSearchInfo\obj\Debug\GetGoogleSearchInfo.csproj.GenerateResource.Cache
