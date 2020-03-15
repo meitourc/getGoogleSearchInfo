@@ -228,8 +228,14 @@ namespace GetGoogleSearchInfo
             //メンバー情報分ループして、コンソールに表示
             foreach (XElement info in infos)
             {
-                
-                Console.WriteLine(info.Element("suggestion data").Value);
+                XElement item = info.Element("suggestion");
+                XAttribute attr = item.Attribute("data");
+                string suggestDataResult = attr.Value;
+                Console.WriteLine(suggestDataResult);
+
+                //Console.WriteLine(info.Element("suggestion data").Value);
+                //Console.WriteLine(info);
+                //Console.WriteLine(info.Attribute("suggestion");
             }
 
         }
