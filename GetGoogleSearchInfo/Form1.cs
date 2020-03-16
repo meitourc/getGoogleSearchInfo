@@ -116,7 +116,10 @@ namespace GetGoogleSearchInfo
             string pattern = "";
             pattern = @"<h3.*?>(.*?)</h3>";
             MatchCollection matche = Regex.Matches(html, pattern);
-            
+
+            Console.WriteLine(html);
+
+
             int id = 1;
             foreach (Match m in matche)
             {
@@ -186,46 +189,34 @@ namespace GetGoogleSearchInfo
         /// <param name="e"></param>
         private void button1_getSuggest_Click(object sender, EventArgs e)
         {
-            string suggestKeyword = "hello";
+            
+            string suggestKeyword = textBox1.Text;
             string suggestUrl = @"http://www.google.com/complete/search?hl=en&q=" + suggestKeyword + @"&output=toolbar";
+            getSuggestData(suggestUrl);
+        }
 
 
+        private void getSuggestData(string suggestUrl)
+        {
             var req = (HttpWebRequest)WebRequest.Create(suggestUrl);
             req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
             string suggestData = "";
-            
+
             //指定したURLに対してrequestを投げてresponseを取得
             using (var res = (HttpWebResponse)req.GetResponse())
             using (var resSt = res.GetResponseStream())
             using (var sr = new StreamReader(resSt, Encoding.UTF8))
-                {
-                    //HTMLを取得する。
-                    suggestData = sr.ReadToEnd();
-                }
+            {
+                //HTMLを取得する。
+                suggestData = sr.ReadToEnd();
+            }
 
-
-            //xmlファイルを指定する
-
-            //XElement xml = XElement.Load(@"sample.xml");
-            //XElement xml = XElement.Load(@".\sample.xml");
-            ////メンバー情報のタグ内の情報を取得する
-            //IEnumerable<XElement> infos = from item in xml.Elements("メンバー情報")
-            //                              select item;
-
-            ////メンバー情報分ループして、コンソールに表示
-            //foreach (XElement info in infos)
-            //{
-            //    Console.Write(info.Element("名前").Value + @",");
-            //    Console.Write(info.Element("住所").Value + @",");
-            //    Console.WriteLine(info.Element("年齢").Value);
-            //}
-
-            XElement xml = XElement.Load(@".\search.xml");
-
+            XElement xml = XElement.Load(suggestUrl);
             IEnumerable<XElement> infos = from item in xml.Elements("CompleteSuggestion")
                                           select item;
 
             //メンバー情報分ループして、コンソールに表示
+            int No = 0;
             foreach (XElement info in infos)
             {
                 XElement item = info.Element("suggestion");
@@ -236,6 +227,27 @@ namespace GetGoogleSearchInfo
                 //Console.WriteLine(info.Element("suggestion data").Value);
                 //Console.WriteLine(info);
                 //Console.WriteLine(info.Attribute("suggestion");
+            }
+        }
+
+        /// <summary>
+        /// メタデータ取得
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_geMetaInfo_Click(object sender, EventArgs e)
+        {
+            string url = "https://ja.wikipedia.org/wiki/%E3%83%86%E3%82%B9%E3%83%88";
+            var req = (HttpWebRequest)WebRequest.Create(url);
+            req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
+            string html = "";
+            //指定したURLに対してrequestを投げてresponseを取得
+            using (var res = (HttpWebResponse)req.GetResponse())
+            using (var resSt = res.GetResponseStream())
+            using (var sr = new StreamReader(resSt, Encoding.UTF8))
+            {
+                //HTMLを取得する。
+                html = sr.ReadToEnd();
             }
 
         }
