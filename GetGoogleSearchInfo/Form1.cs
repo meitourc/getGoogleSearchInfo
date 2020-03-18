@@ -7,8 +7,7 @@ URL:https://crowdworks.jp/public/jobs/4933744
 今回作成しない：モジュール2：google検索結果1ページ目のサイトの種類をURLから判定するツール
 モジュール3：google検索結果1ページ目のサイトの見出しの一覧を作成するツール
 モジュール4：google検索結果1ページ目のタイトル、サジェストを抜き出して重複を排除して一覧にするツール
-モジュール5：google検索結果1ページ目のタイトル、メタキーワード、メタディスクリプション、コンテンツを抜き出して一覧にするツール 
-
+モジュール5：google検索結果1ページ目のタイトル、メタキーワード、メタディスクリプション、コンテンツを抜き出して一覧にするツール
 **/
 
 using OpenQA.Selenium.Chrome;
@@ -44,6 +43,7 @@ namespace GetGoogleSearchInfo
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            textBox1.Text = "プログラミング";
             button_exec_control();
         }
 
@@ -191,43 +191,75 @@ namespace GetGoogleSearchInfo
         {
             
             string suggestKeyword = textBox1.Text;
-            string suggestUrl = @"http://www.google.com/complete/search?hl=en&q=" + suggestKeyword + @"&output=toolbar";
+            //string suggestUrl = @"http://www.google.com/complete/search?hl=en&q=" + suggestKeyword + @"&output=toolbar";
+            string suggestUrl = @"http://www.google.com/complete/search?hl=ja&q=" + suggestKeyword + @"&output=toolbar";
+
             getSuggestData(suggestUrl);
         }
 
 
         private void getSuggestData(string suggestUrl)
         {
-            var req = (HttpWebRequest)WebRequest.Create(suggestUrl);
-            req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
-            string suggestData = "";
+            //var req = (HttpWebRequest)WebRequest.Create(suggestUrl);
+            //req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) ///Chrome / /70.0.3538.77 Safari / 537.36";
+            //string suggestData = "";
+            //
+            ////指定したURLに対してrequestを投げてresponseを取得
+            //using (var res = (HttpWebResponse)req.GetResponse())
+            //using (var resSt = res.GetResponseStream())
+            //using (var sr = new StreamReader(resSt, Encoding.UTF8))
+            //
+            //{
+            //    //HTMLを取得する。
+            //    suggestData = sr.ReadToEnd();
+            //}
+            var url = suggestUrl;
+            var client = new WebClient() { Encoding = Encoding.GetEncoding("shift-jis")};
+            var xml = client.DownloadString(url);
+            var d = XDocument.Parse(xml);
 
-            //指定したURLに対してrequestを投げてresponseを取得
-            using (var res = (HttpWebResponse)req.GetResponse())
-            using (var resSt = res.GetResponseStream())
-            using (var sr = new StreamReader(resSt, Encoding.UTF8))
-            {
-                //HTMLを取得する。
-                suggestData = sr.ReadToEnd();
-            }
+            Console.WriteLine(d);
 
-            XElement xml = XElement.Load(suggestUrl);
-            IEnumerable<XElement> infos = from item in xml.Elements("CompleteSuggestion")
+
+            //XElement xml = XElement.Load(suggestUrl);
+            IEnumerable<XElement> infos = from item in d.Elements("CompleteSuggestion")
                                           select item;
 
             //メンバー情報分ループして、コンソールに表示
             int No = 0;
             foreach (XElement info in infos)
             {
-                XElement item = info.Element("suggestion");
-                XAttribute attr = item.Attribute("data");
-                string suggestDataResult = attr.Value;
-                Console.WriteLine(suggestDataResult);
+                //XElement item = info.Element("suggestion");
+                //XAttribute attr = item.Attribute("data");
+                //string suggestDataResult = attr.Value;
+                //Console.WriteLine(suggestDataResult);
 
                 //Console.WriteLine(info.Element("suggestion data").Value);
-                //Console.WriteLine(info);
+                Console.WriteLine(info);
                 //Console.WriteLine(info.Attribute("suggestion");
             }
+        }
+
+        private static string Sanitize(string xml)
+        {
+            var sb = new System.Text.StringBuilder();
+
+            foreach (var c in xml)
+            {
+                var code = (int)c;
+
+                if (code == 0x9 ||
+                    code == 0xa ||
+                    code == 0xd ||
+                    (0x20 <= code && code <= 0xd7ff) ||
+                    (0xe000 <= code && code <= 0xfffd) ||
+                    (0x10000 <= code && code <= 0x10ffff))
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>
