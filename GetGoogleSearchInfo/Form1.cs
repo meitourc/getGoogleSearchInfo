@@ -10,6 +10,7 @@ URL:https://crowdworks.jp/public/jobs/4933744
 モジュール5：google検索結果1ページ目のタイトル、メタキーワード、メタディスクリプション、コンテンツを抜き出して一覧にするツール
 **/
 
+using AngleSharp.Html.Parser;
 using OpenQA.Selenium.Chrome;
 using System;
 using System.Collections.Generic;
@@ -54,8 +55,8 @@ namespace GetGoogleSearchInfo
         /// <param name="e"></param>
         private void button_getData_Click(object sender, EventArgs e)
         {
-            KEY_WORD = textBox1.Text;
-            string url = "https://www.google.co.jp/search?q= " + KEY_WORD  + "&ie=UTF-8&oe=UTF-8&num=20";
+
+            string url = getKeyWordUrl();
 
             //htmlデータ取得
             string html = getSearchResultHtml(url);
@@ -68,10 +69,22 @@ namespace GetGoogleSearchInfo
             csvWrite();
         }
 
+
         /// <summary>
         /// 実行ボタンの活性/非活性のコントロール処理
         /// </summary>
-        void button_exec_control()
+        private string getKeyWordUrl()
+        {
+            KEY_WORD = textBox1.Text;
+            string url = "https://www.google.co.jp/search?q= " + KEY_WORD + "&ie=UTF-8&oe=UTF-8&num=20";
+            return url;
+        }
+
+
+        /// <summary>
+        /// 実行ボタンの活性/非活性のコントロール処理
+        /// </summary>
+        private void button_exec_control()
         {
             if (textBox1.Text != "")
             {
@@ -81,7 +94,6 @@ namespace GetGoogleSearchInfo
             {
                 button_getData.Enabled = false;
             }
-
         }
 
         ///// <summary>
@@ -281,6 +293,124 @@ namespace GetGoogleSearchInfo
                 //HTMLを取得する。
                 html = sr.ReadToEnd();
             }
+
+        }
+
+        /// <summary>
+        /// サイトのページからメタディスクリプションを抽出
+        /// </summary>
+        /// <param name="html"></param>
+        private void scrapingMetaDescription(string html)
+        {
+            //html = html.Replace("\r", "").Replace("\n", "");
+            //string pattern = "";
+            //pattern = @"meta content='(.*?)[\s\S]*?'[\s]*?name=[\s]*?'description'";
+            //
+            ////MatchCollection matche = Regex.Matches(html, pattern);
+            //
+            //
+            //Regex regex = new Regex(pattern);
+            //Match match = regex.Match(html);
+            //
+            //string metaDescription = match.Groups[0].ToString();
+            //
+            //Console.WriteLine(metaDescription);
+
+
+            // HtmlParserクラスをインスタンス化
+            var parser = new HtmlParser();
+            // HtmlParserクラスのParserメソッドを使用してパースする。
+            // Parserメソッドの戻り値の型はIHtmlDocument
+            var htmlDocument = parser.ParseDocument(html);
+            var urlElements = htmlDocument.GetElementsByName("description");
+
+            Console.WriteLine(urlElements);
+
+
+            //int id = 1;
+            //foreach (Match m in matche)
+            //{
+            //
+            //    Console.WriteLine(m);
+
+
+            //string pattern2 = "\\)\">(.*?)<";
+            //string siteTitle = m.Groups[1].ToString();
+
+            //Regex regex = new Regex(pattern2);
+            //Match match = regex.Match(siteTitle);
+            //siteTitle = match.Groups[1].ToString();
+
+            //SearchResultData searchResultData = new SearchResultData();
+            //searchResultData.id = id;
+            //searchResultData.keyWord = KEY_WORD;
+            //searchResultData.title = @siteTitle;
+            //DateTime dt = DateTime.Now;
+            //searchResultData.getDate = dt.ToString();
+
+            //searchResultDataList.Add(searchResultData);
+            //Console.WriteLine(siteTitle);
+            //Console.WriteLine("\n--takuma--\n");
+            //id++;
+            //}
+
+        }
+
+
+        /// <summary>
+        /// google検索結果からサイトのURLを抽出
+        /// </summary>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        private List<string> getSiteUrl(string html)
+        {
+            html = html.Replace("\r", "").Replace("\n", "");
+            string pattern = "";
+            pattern = @"<h3.*?>(.*?)</h3>";
+            MatchCollection matche = Regex.Matches(html, pattern);
+
+            var siteUrlList = new List<string>();
+            //Console.WriteLine(html);
+
+            int id = 1;
+            foreach (Match m in matche)
+            {
+
+                string pattern2 = "<a href=\"(.*?)\"";
+                string siteTitle = m.Groups[1].ToString();
+
+                Regex regex = new Regex(pattern2);
+                Match match = regex.Match(siteTitle);
+                siteTitle = match.Groups[1].ToString();
+                siteUrlList.Add(siteTitle);
+                //Console.WriteLine(siteTitle);
+            }
+            return siteUrlList;
+
+        }
+
+
+        /// <summary>
+        /// メタディスクリプション取得
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_meta_discription_Click(object sender, EventArgs e)
+        {
+            string url = getKeyWordUrl();
+            string html = getSearchResultHtml(url);
+            List<string> siteUrlList = getSiteUrl(html);
+
+
+            foreach (var siteUrl in siteUrlList)
+            {
+//                Console.WriteLine(siteUrl);
+                html = getSearchResultHtml(siteUrl);
+                scrapingMetaDescription(html);
+            }
+
+
+
 
         }
     }

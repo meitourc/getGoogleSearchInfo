@@ -33,6 +33,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.button1_getSuggest = new System.Windows.Forms.Button();
             this.button1_geMetaInfo = new System.Windows.Forms.Button();
+            this.button1_meta_discription = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button_getData
@@ -87,11 +88,22 @@
             this.button1_geMetaInfo.UseVisualStyleBackColor = true;
             this.button1_geMetaInfo.Click += new System.EventHandler(this.button1_geMetaInfo_Click);
             // 
+            // button1_meta_discription
+            // 
+            this.button1_meta_discription.Location = new System.Drawing.Point(927, 744);
+            this.button1_meta_discription.Name = "button1_meta_discription";
+            this.button1_meta_discription.Size = new System.Drawing.Size(395, 94);
+            this.button1_meta_discription.TabIndex = 7;
+            this.button1_meta_discription.Text = "メタディスクリプション";
+            this.button1_meta_discription.UseVisualStyleBackColor = true;
+            this.button1_meta_discription.Click += new System.EventHandler(this.button1_meta_discription_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1398, 859);
+            this.ClientSize = new System.Drawing.Size(1398, 1075);
+            this.Controls.Add(this.button1_meta_discription);
             this.Controls.Add(this.button1_geMetaInfo);
             this.Controls.Add(this.button1_getSuggest);
             this.Controls.Add(this.label1);
@@ -113,6 +125,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button1_getSuggest;
         private System.Windows.Forms.Button button1_geMetaInfo;
+        private System.Windows.Forms.Button button1_meta_discription;
     }
 }
 
