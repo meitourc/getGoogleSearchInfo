@@ -103,16 +103,23 @@ namespace GetGoogleSearchInfo
         ///// <returns>取得したHTML</returns>
         private string getSearchResultHtml(string url)
         {
+
             var req = (HttpWebRequest)WebRequest.Create(url);
             req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
             string html = "";
-            //指定したURLに対してrequestを投げてresponseを取得
-            using (var res = (HttpWebResponse)req.GetResponse())
-            using (var resSt = res.GetResponseStream())
-            using (var sr = new StreamReader(resSt, Encoding.UTF8))
+            try
             {
-                //HTMLを取得する。
-                html = sr.ReadToEnd();
+                //指定したURLに対してrequestを投げてresponseを取得
+                using (var res = (HttpWebResponse)req.GetResponse())
+                using (var resSt = res.GetResponseStream())
+                using (var sr = new StreamReader(resSt, Encoding.UTF8))
+                {
+                    //HTMLを取得する。
+                    html = sr.ReadToEnd();
+                }
+            }catch(Exception ex)
+            {
+                Console.WriteLine("Errorが発生しました。");
             }
             return html;
         }
@@ -321,10 +328,13 @@ namespace GetGoogleSearchInfo
             var parser = new HtmlParser();
             // HtmlParserクラスのParserメソッドを使用してパースする。
             // Parserメソッドの戻り値の型はIHtmlDocument
-            var htmlDocument = parser.ParseDocument(html);
-            var urlElements = htmlDocument.GetElementsByName("description");
 
-            Console.WriteLine(urlElements);
+            Console.WriteLine(parser);
+
+            var htmlDocument = parser.ParseDocument(html);
+            //var urlElements = htmlDocument.GetElementsByName("description");
+
+            //Console.WriteLine(urlElements);
 
 
             //int id = 1;
@@ -370,7 +380,6 @@ namespace GetGoogleSearchInfo
             MatchCollection matche = Regex.Matches(html, pattern);
 
             var siteUrlList = new List<string>();
-            //Console.WriteLine(html);
 
             int id = 1;
             foreach (Match m in matche)
@@ -383,7 +392,7 @@ namespace GetGoogleSearchInfo
                 Match match = regex.Match(siteTitle);
                 siteTitle = match.Groups[1].ToString();
                 siteUrlList.Add(siteTitle);
-                //Console.WriteLine(siteTitle);
+                Console.WriteLine(siteTitle);
             }
             return siteUrlList;
 
@@ -404,7 +413,7 @@ namespace GetGoogleSearchInfo
 
             foreach (var siteUrl in siteUrlList)
             {
-//                Console.WriteLine(siteUrl);
+                Console.WriteLine(siteUrl);
                 html = getSearchResultHtml(siteUrl);
                 scrapingMetaDescription(html);
             }
