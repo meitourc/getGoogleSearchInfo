@@ -59,7 +59,7 @@ namespace GetGoogleSearchInfo
             string url = getKeyWordUrl();
 
             //htmlデータ取得
-            string html = getSearchResultHtml(url);
+            string html = getHtml(url);
             //Console.WriteLine(html);
 
             //スクレイピング処理
@@ -101,7 +101,7 @@ namespace GetGoogleSearchInfo
         ///// </summary>
         ///// <param name="url">URL</param>
         ///// <returns>取得したHTML</returns>
-        private string getSearchResultHtml(string url)
+        private string getHtml(string url)
         {
 
             var req = (HttpWebRequest)WebRequest.Create(url);
@@ -213,50 +213,28 @@ namespace GetGoogleSearchInfo
             //string suggestUrl = @"http://www.google.com/complete/search?hl=en&q=" + suggestKeyword + @"&output=toolbar";
             string suggestUrl = @"http://www.google.com/complete/search?hl=ja&q=" + suggestKeyword + @"&output=toolbar";
 
-            getSuggestData(suggestUrl);
+            string html = getHtml(suggestUrl);
+            getSuggestData(html);
         }
 
 
-        private void getSuggestData(string suggestUrl)
+        private List<string> getSuggestData(string html)
         {
-            //var req = (HttpWebRequest)WebRequest.Create(suggestUrl);
-            //req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) ///Chrome / /70.0.3538.77 Safari / 537.36";
-            //string suggestData = "";
-            //
-            ////指定したURLに対してrequestを投げてresponseを取得
-            //using (var res = (HttpWebResponse)req.GetResponse())
-            //using (var resSt = res.GetResponseStream())
-            //using (var sr = new StreamReader(resSt, Encoding.UTF8))
-            //
-            //{
-            //    //HTMLを取得する。
-            //    suggestData = sr.ReadToEnd();
-            //}
-            var url = suggestUrl;
-            var client = new WebClient() { Encoding = Encoding.GetEncoding("shift-jis")};
-            var xml = client.DownloadString(url);
-            var d = XDocument.Parse(xml);
+            html = html.Replace("\r", "").Replace("\n", "");
+            string pattern = "";
+            pattern = "<suggestion data=\"(.*?)\"";
+            MatchCollection matche = Regex.Matches(html, pattern);
 
-            Console.WriteLine(d);
+            var suggetDataList = new List<string>();
 
-
-            //XElement xml = XElement.Load(suggestUrl);
-            IEnumerable<XElement> infos = from item in d.Elements("CompleteSuggestion")
-                                          select item;
-
-            //メンバー情報分ループして、コンソールに表示
-            int No = 0;
-            foreach (XElement info in infos)
+            int id = 1;
+            foreach (Match m in matche)
             {
-                //XElement item = info.Element("suggestion");
-                //XAttribute attr = item.Attribute("data");
-                //string suggestDataResult = attr.Value;
-                //Console.WriteLine(suggestDataResult);
-
-                //Console.WriteLine(info.Element("suggestion data").Value);
-                Console.WriteLine(info);
-                //Console.WriteLine(info.Attribute("suggestion");
+                string siteTitle = m.Groups[1].ToString();
+                suggetDataList.Add(siteTitle);
+                Console.WriteLine(siteTitle);
             }
+            return suggetDataList;
         }
 
         private static string Sanitize(string xml)
@@ -328,10 +306,9 @@ namespace GetGoogleSearchInfo
             var parser = new HtmlParser();
             // HtmlParserクラスのParserメソッドを使用してパースする。
             // Parserメソッドの戻り値の型はIHtmlDocument
-
-            Console.WriteLine(parser);
-
             var htmlDocument = parser.ParseDocument(html);
+            Console.WriteLine(html);
+
             //var urlElements = htmlDocument.GetElementsByName("description");
 
             //Console.WriteLine(urlElements);
@@ -372,7 +349,7 @@ namespace GetGoogleSearchInfo
         /// </summary>
         /// <param name="html"></param>
         /// <returns></returns>
-        private List<string> getSiteUrl(string html)
+        private List<string> getSiteUrlList(string html)
         {
             html = html.Replace("\r", "").Replace("\n", "");
             string pattern = "";
@@ -407,20 +384,19 @@ namespace GetGoogleSearchInfo
         private void button1_meta_discription_Click(object sender, EventArgs e)
         {
             string url = getKeyWordUrl();
-            string html = getSearchResultHtml(url);
-            List<string> siteUrlList = getSiteUrl(html);
+            string html = getHtml(url);
+            List<string> siteUrlList = getSiteUrlList(html);
 
 
-            foreach (var siteUrl in siteUrlList)
-            {
-                Console.WriteLine(siteUrl);
-                html = getSearchResultHtml(siteUrl);
-                scrapingMetaDescription(html);
-            }
+            //foreach (var siteUrl in siteUrlList)
+            //{
+            //    Console.WriteLine(siteUrl);
+            //    html = getSearchResultHtml(siteUrl);
+            //    scrapingMetaDescription(html);
+            //}
 
-
-
-
+            html = getHtml("https://prog-8.com/");
+            scrapingMetaDescription(html);
         }
     }
 }
