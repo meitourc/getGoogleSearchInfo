@@ -103,13 +103,12 @@ namespace GetGoogleSearchInfo
         ///// <returns>取得したHTML</returns>
         private string getHtml(string url)
         {
-
-            var req = (HttpWebRequest)WebRequest.Create(url);
-            req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
             string html = "";
             try
             {
                 //指定したURLに対してrequestを投げてresponseを取得
+                var req = (HttpWebRequest)WebRequest.Create(url);
+                req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
                 using (var res = (HttpWebResponse)req.GetResponse())
                 using (var resSt = res.GetResponseStream())
                 using (var sr = new StreamReader(resSt, Encoding.UTF8))
@@ -119,7 +118,7 @@ namespace GetGoogleSearchInfo
                 }
             }catch(Exception ex)
             {
-                Console.WriteLine("Errorが発生しました。");
+                Console.WriteLine(ex + "Errorが発生しました。");
             }
             return html;
         }
@@ -287,27 +286,62 @@ namespace GetGoogleSearchInfo
         /// <param name="html"></param>
         private void scrapingMetaDescription(string html)
         {
-            //html = html.Replace("\r", "").Replace("\n", "");
-            //string pattern = "";
-            //pattern = @"meta content='(.*?)[\s\S]*?'[\s]*?name=[\s]*?'description'";
-            //
-            ////MatchCollection matche = Regex.Matches(html, pattern);
-            //
-            //
-            //Regex regex = new Regex(pattern);
-            //Match match = regex.Match(html);
-            //
-            //string metaDescription = match.Groups[0].ToString();
-            //
-            //Console.WriteLine(metaDescription);
+            html = html.Replace("\r", "").Replace("\n", "");
+            string pattern = "";
+
+            //@空白改行をリプレイスする
+
+            string beforeReplacePattern = "\\s";
+            string afterReplacePattern = "";
 
 
-            // HtmlParserクラスをインスタンス化
-            var parser = new HtmlParser();
-            // HtmlParserクラスのParserメソッドを使用してパースする。
-            // Parserメソッドの戻り値の型はIHtmlDocument
-            var htmlDocument = parser.ParseDocument(html);
-            Console.WriteLine(html);
+            //軽い
+            pattern = "meta content=[\'|\"]([\\s\\S]*?)[\'|\"].*name.*[\'|\"]description[\'|\"]";
+            pattern = "metacontent=.(.*?).name=.description.";
+            //重い
+            //pattern = ".*?meta content.*?=.*?[\'|\"]([\\s\\S]*?)[\'|\"].*name.*[\'|\"].*?description[\'|\"]";
+            //pattern = ".*meta content.*=.*[\'|\"]([\\s\\S].*)[\'|\"].*name.*[\'|\"].*description[\'|\"]";
+            //pattern = "meta content\\s+=\\s*[\'|\"]([\\s\\S]\\s*)[\'|\"]\\s*name\\s*[\'|\"]\\s*description[\'|\"]";
+
+
+
+            Regex regex = new Regex(beforeReplacePattern);
+            html = regex.Replace(html, afterReplacePattern);
+
+            Console.WriteLine("html:" +  html);
+
+            regex = new Regex(pattern);
+            Match match = regex.Match(html);
+            string metaDescription = match.Groups[1].ToString();
+
+            if (metaDescription == "")
+            {
+                //pattern = "<.*?meta.*?name.*?=.*?[\"|\']description.*?[\"|\'].*?content.*?=.*?[\"|\']([\\s\\S]*?)[\"|\'].*?>";
+                //pattern = "<.*?meta.*?name.*?=.*?[\"|\']description.*?[\"|\'].*?content.*?=.*?[\"|\']([\\s\\S].*?)[\"|\'].*?>";
+
+                //pattern = "<meta\\s*name\\s*=\\s*[\"|\']description\\s*[\"|\']\\s*content\\s*=\\s*[\"|\']([\\s\\S]\\s*)[\"|\']\\s*>";
+                pattern = "<meta name=[\"|\']description[\"|\']content=[\"|\']([\\s\\S])[\"|\']>";
+
+                //@[\"|\']を「.」に変える。
+                pattern = "<meta name=[\"|\']description[\"|\']content=[\"|\']([\\s\\S])[\"|\']>";
+
+                regex = new Regex(pattern);
+                match = regex.Match(html);
+
+                //@matchの中身の存在確認してチェック
+                metaDescription = match.Groups[1].ToString();
+            }
+
+
+
+            Console.WriteLine("メタディスクリプション：" + metaDescription);
+
+            //// HtmlParserクラスをインスタンス化
+            //var parser = new HtmlParser();
+            //// HtmlParserクラスのParserメソッドを使用してパースする。
+            //// Parserメソッドの戻り値の型はIHtmlDocument
+            //var htmlDocument = parser.ParseDocument(html);
+            //Console.WriteLine(html);
 
             //var urlElements = htmlDocument.GetElementsByName("description");
 
@@ -361,7 +395,6 @@ namespace GetGoogleSearchInfo
             int id = 1;
             foreach (Match m in matche)
             {
-
                 string pattern2 = "<a href=\"(.*?)\"";
                 string siteTitle = m.Groups[1].ToString();
 
@@ -369,10 +402,9 @@ namespace GetGoogleSearchInfo
                 Match match = regex.Match(siteTitle);
                 siteTitle = match.Groups[1].ToString();
                 siteUrlList.Add(siteTitle);
-                Console.WriteLine(siteTitle);
+                //Console.WriteLine(siteTitle);
             }
             return siteUrlList;
-
         }
 
 
@@ -388,15 +420,31 @@ namespace GetGoogleSearchInfo
             List<string> siteUrlList = getSiteUrlList(html);
 
 
-            //foreach (var siteUrl in siteUrlList)
-            //{
-            //    Console.WriteLine(siteUrl);
-            //    html = getSearchResultHtml(siteUrl);
-            //    scrapingMetaDescription(html);
-            //}
+            int i = 0;
+            foreach (var siteUrl in siteUrlList)
+            {
+                if(i == 5)
+                {
+                    break;
+                }
 
-            html = getHtml("https://prog-8.com/");
-            scrapingMetaDescription(html);
+                string targetHtml = "";
+                Console.WriteLine(siteUrl);
+                targetHtml = getHtml(siteUrl);
+
+                if (targetHtml != "")
+                {
+                    scrapingMetaDescription(targetHtml);
+                }
+                i++;
+            }
+
+            //string targetHtml2 = "";
+            //targetHtml2 = getHtml("https://www.amazon.co.jp/%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0-%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%83%BB%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%8D%E3%83%83%E3%83%88-%E5%92%8C%E6%9B%B8/b?ie=UTF8&amp;node=492352");
+            //if(targetHtml2 != "")
+            //{
+            //    scrapingMetaDescription(targetHtml2);
+            //}
         }
     }
 }
