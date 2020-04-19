@@ -43,7 +43,7 @@
             // 
             // button_getData
             // 
-            this.button_getData.Location = new System.Drawing.Point(78, 235);
+            this.button_getData.Location = new System.Drawing.Point(78, 249);
             this.button_getData.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
             this.button_getData.Name = "button_getData";
             this.button_getData.Size = new System.Drawing.Size(257, 68);
@@ -74,7 +74,7 @@
             // 
             // button1_getSuggest
             // 
-            this.button1_getSuggest.Location = new System.Drawing.Point(368, 235);
+            this.button1_getSuggest.Location = new System.Drawing.Point(78, 348);
             this.button1_getSuggest.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
             this.button1_getSuggest.Name = "button1_getSuggest";
             this.button1_getSuggest.Size = new System.Drawing.Size(257, 68);
@@ -85,7 +85,7 @@
             // 
             // button1_geMetaInfo
             // 
-            this.button1_geMetaInfo.Location = new System.Drawing.Point(658, 235);
+            this.button1_geMetaInfo.Location = new System.Drawing.Point(78, 447);
             this.button1_geMetaInfo.Name = "button1_geMetaInfo";
             this.button1_geMetaInfo.Size = new System.Drawing.Size(257, 68);
             this.button1_geMetaInfo.TabIndex = 6;
@@ -95,7 +95,7 @@
             // 
             // button1_meta_discription
             // 
-            this.button1_meta_discription.Location = new System.Drawing.Point(948, 235);
+            this.button1_meta_discription.Location = new System.Drawing.Point(78, 546);
             this.button1_meta_discription.Name = "button1_meta_discription";
             this.button1_meta_discription.Size = new System.Drawing.Size(257, 68);
             this.button1_meta_discription.TabIndex = 7;
@@ -135,7 +135,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(74, 365);
+            this.label4.Location = new System.Drawing.Point(74, 151);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(161, 24);
             this.label4.TabIndex = 10;
@@ -144,7 +144,7 @@
             // label5_status
             // 
             this.label5_status.AutoSize = true;
-            this.label5_status.Location = new System.Drawing.Point(258, 365);
+            this.label5_status.Location = new System.Drawing.Point(258, 151);
             this.label5_status.Name = "label5_status";
             this.label5_status.Size = new System.Drawing.Size(100, 24);
             this.label5_status.TabIndex = 10;
@@ -154,7 +154,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1360, 530);
+            this.ClientSize = new System.Drawing.Size(1324, 682);
             this.Controls.Add(this.label5_status);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);

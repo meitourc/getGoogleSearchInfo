@@ -10,7 +10,6 @@ namespace GetGoogleSearchInfo
     {
         public int id { get; set; }
         public string keyWord { get; set; }
-        public string title { get; set; }
-        public string getDate { get; set; }
+        public string suggestKeyword { get; set; }
     }
 }
