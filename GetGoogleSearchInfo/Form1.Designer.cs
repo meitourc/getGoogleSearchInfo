@@ -32,8 +32,7 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.button1_getSuggest = new System.Windows.Forms.Button();
-            this.button1_geMetaInfo = new System.Windows.Forms.Button();
-            this.button1_meta_discription = new System.Windows.Forms.Button();
+            this.button1_meta_data = new System.Windows.Forms.Button();
             this.textBox_UrlDataNum = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -74,7 +73,7 @@
             // 
             // button1_getSuggest
             // 
-            this.button1_getSuggest.Location = new System.Drawing.Point(78, 348);
+            this.button1_getSuggest.Location = new System.Drawing.Point(371, 249);
             this.button1_getSuggest.Margin = new System.Windows.Forms.Padding(2, 4, 2, 4);
             this.button1_getSuggest.Name = "button1_getSuggest";
             this.button1_getSuggest.Size = new System.Drawing.Size(257, 68);
@@ -83,25 +82,15 @@
             this.button1_getSuggest.UseVisualStyleBackColor = true;
             this.button1_getSuggest.Click += new System.EventHandler(this.button1_getSuggest_Click);
             // 
-            // button1_geMetaInfo
+            // button1_meta_data
             // 
-            this.button1_geMetaInfo.Location = new System.Drawing.Point(928, 258);
-            this.button1_geMetaInfo.Name = "button1_geMetaInfo";
-            this.button1_geMetaInfo.Size = new System.Drawing.Size(257, 68);
-            this.button1_geMetaInfo.TabIndex = 6;
-            this.button1_geMetaInfo.Text = "メタキーワード取得";
-            this.button1_geMetaInfo.UseVisualStyleBackColor = true;
-            this.button1_geMetaInfo.Click += new System.EventHandler(this.button1_geMetaInfo_Click);
-            // 
-            // button1_meta_discription
-            // 
-            this.button1_meta_discription.Location = new System.Drawing.Point(78, 457);
-            this.button1_meta_discription.Name = "button1_meta_discription";
-            this.button1_meta_discription.Size = new System.Drawing.Size(257, 68);
-            this.button1_meta_discription.TabIndex = 7;
-            this.button1_meta_discription.Text = "メタディスクリプション";
-            this.button1_meta_discription.UseVisualStyleBackColor = true;
-            this.button1_meta_discription.Click += new System.EventHandler(this.button1_meta_discription_Click);
+            this.button1_meta_data.Location = new System.Drawing.Point(664, 249);
+            this.button1_meta_data.Name = "button1_meta_data";
+            this.button1_meta_data.Size = new System.Drawing.Size(257, 68);
+            this.button1_meta_data.TabIndex = 7;
+            this.button1_meta_data.Text = "メタデータ取得";
+            this.button1_meta_data.UseVisualStyleBackColor = true;
+            this.button1_meta_data.Click += new System.EventHandler(this.button1_meta_data_Click);
             // 
             // textBox_UrlDataNum
             // 
@@ -154,13 +143,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(13F, 24F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1324, 682);
+            this.ClientSize = new System.Drawing.Size(1312, 382);
             this.Controls.Add(this.label5_status);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.textBox_UrlDataNum);
-            this.Controls.Add(this.button1_meta_discription);
-            this.Controls.Add(this.button1_geMetaInfo);
+            this.Controls.Add(this.button1_meta_data);
             this.Controls.Add(this.button1_getSuggest);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -181,8 +169,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button button1_getSuggest;
-        private System.Windows.Forms.Button button1_geMetaInfo;
-        private System.Windows.Forms.Button button1_meta_discription;
+        private System.Windows.Forms.Button button1_meta_data;
         private System.Windows.Forms.TextBox textBox_UrlDataNum;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;

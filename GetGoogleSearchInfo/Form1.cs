@@ -37,14 +37,13 @@ namespace GetGoogleSearchInfo
         static string DOUBLE_QUOTATION = "\""; //ダブルクォーテーション
         static string LINE_FEED_CODE = "\r\n"; //改行コード
         string KEY_WORD = "プログラミング";
-        int GET_URL_NUM = 5;
+        static int GET_URL_NUM = 5;
+        static int PROC_STATUS = PROC_STANDBY;
+
         static List<TitleData> titleDataList = new List<TitleData>(); //CSV読み込みデータ格納リスト
         static List<SuggestData> suggestDataList = new List<SuggestData>(); //CSV読み込みデータ格納リスト
         static List<MetaDataData> metaDataDataList = new List<MetaDataData>(); //CSV読み込みデータ格納リスト
-        //static List<MetaKeywordData> metaKeywordDataList = new List<MetaKeywordData>(); //CSV読み込みデータ格納リスト
-
-
-
+                                                                               //static List<MetaKeywordData> metaKeywordDataList = new List<MetaKeywordData>(); //CSV読み込みデータ格納リスト
 
 
         //------------------------------------------------------
@@ -60,6 +59,7 @@ namespace GetGoogleSearchInfo
         //------------------------------------------------------
         private void Form1_Load(object sender, EventArgs e)
         {
+            initializeDataList();
             textBox1.Text = KEY_WORD;
             textBox_UrlDataNum.Text = GET_URL_NUM.ToString();
             label3.Visible = false;
@@ -118,42 +118,45 @@ namespace GetGoogleSearchInfo
             if (textBox1.Text != "" && textBox_UrlDataNum.Text != "")
             {
                 button_getData.Enabled = true;
-                button1_meta_discription.Enabled = true;
+                button1_meta_data.Enabled = true;
             }
             else
             {
                 button_getData.Enabled = false;
-                button1_meta_discription.Enabled = false;
+                button1_meta_data.Enabled = false;
             }
         }
+
 
         /// <summary>
         /// 処理途中はボタンおよびラベルを無効化する
         /// </summary>
         private void conponentExecControl(int procStatus)
         {
-            if (procStatus == PROC_STANDBY)
+            PROC_STATUS = procStatus;
+            if (PROC_STATUS == PROC_STANDBY)
             {
                 label5_status.Text = "--スタンバイ--";
                 label5_status.ForeColor = System.Drawing.Color.Black;
                 buttonAndTextBoxControl(true);
             }
 
-            if (procStatus == PROC_START)
+            if (PROC_STATUS == PROC_START)
             {
                 label5_status.Text = "--処理を実行しています--";
                 label5_status.ForeColor = System.Drawing.Color.Black;
                 buttonAndTextBoxControl(false);
             }
-            else if (procStatus == PROC_END)
+            else if (PROC_STATUS == PROC_END)
             {
                 label5_status.Text = "--処理が完了しました--";
                 label5_status.ForeColor = System.Drawing.Color.Blue;
                 buttonAndTextBoxControl(true);
             }
-            else if (procStatus == PROC_ERROR)
+            else if (PROC_STATUS == PROC_ERROR)
             {
-                label5_status.Text = "--処理を途中にエラーが発生しました--";
+                label5_status.Text = "--処理の途中にエラーが発生しました--\n" +
+                                    "※データが正しく取得できなかった可能性があります。";
                 label5_status.ForeColor = System.Drawing.Color.Red;
                 buttonAndTextBoxControl(true);
             }
@@ -172,8 +175,7 @@ namespace GetGoogleSearchInfo
                 textBox_UrlDataNum.Enabled = true;
                 button_getData.Enabled = true;
                 button1_getSuggest.Enabled = true;
-                button1_geMetaInfo.Enabled = true;
-                button1_meta_discription.Enabled = true;
+                button1_meta_data.Enabled = true;
             }
             else
             {
@@ -181,8 +183,7 @@ namespace GetGoogleSearchInfo
                 textBox_UrlDataNum.Enabled = false;
                 button_getData.Enabled = false;
                 button1_getSuggest.Enabled = false;
-                button1_geMetaInfo.Enabled = false;
-                button1_meta_discription.Enabled = false;
+                button1_meta_data.Enabled = false;
             }
         }
 
@@ -198,7 +199,7 @@ namespace GetGoogleSearchInfo
         private void button_getData_Click(object sender, EventArgs e)
         {
             conponentExecControl(PROC_START);
-
+            initializeDataList();
             string url = getKeyWordUrl();
 
             //htmlデータ取得
@@ -223,7 +224,7 @@ namespace GetGoogleSearchInfo
         private void button1_getSuggest_Click(object sender, EventArgs e)
         {
             conponentExecControl(PROC_START);
-
+            initializeDataList();
             string suggestKeyword = textBox1.Text;
             //string suggestUrl = @"http://www.google.com/complete/search?hl=en&q=" + suggestKeyword + @"&output=toolbar";
             string suggestUrl = @"http://www.google.com/complete/search?hl=ja&q=" + suggestKeyword + @"&output=toolbar";
@@ -232,8 +233,10 @@ namespace GetGoogleSearchInfo
             getSuggestData(html);
             csvWrite_Suggest();
 
-            conponentExecControl(PROC_END);
-
+            if (PROC_STATUS != PROC_ERROR)
+            {
+                conponentExecControl(PROC_END);
+            }
         }
 
 
@@ -245,7 +248,7 @@ namespace GetGoogleSearchInfo
         private void button1_geMetaInfo_Click(object sender, EventArgs e)
         {
             conponentExecControl(PROC_START);
-
+            initializeDataList();
             string url = "https://ja.wikipedia.org/wiki/%E3%83%86%E3%82%B9%E3%83%88";
             var req = (HttpWebRequest)WebRequest.Create(url);
             req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
@@ -259,16 +262,20 @@ namespace GetGoogleSearchInfo
                 html = sr.ReadToEnd();
             }
 
-            conponentExecControl(PROC_END);
+            if (PROC_STATUS != PROC_ERROR)
+            {
+                conponentExecControl(PROC_END);
+            }
 
         }
 
+
         /// <summary>
-        /// メタディスクリプション取得ボタン
+        /// メタデータ取得ボタン
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button1_meta_discription_Click(object sender, EventArgs e)
+        private void button1_meta_data_Click(object sender, EventArgs e)
         {
             conponentExecControl(PROC_START);
 
@@ -276,17 +283,30 @@ namespace GetGoogleSearchInfo
             string url = getKeyWordUrl();
             string html = getHtml(url);
             List<string> siteUrlList = getSiteUrlList(html);
-            scrapingMetaDescriptionMain(siteUrlList);
+            scrapingMetaData(siteUrlList);
             csvWrite_description();
 
+            if (PROC_STATUS != PROC_ERROR)
+            {
+                conponentExecControl(PROC_END);
+            }
 
-            conponentExecControl(PROC_END);
 
         }
 
         //------------------------------------------------------
         //共通処理
         //------------------------------------------------------
+        /// <summary>
+        /// データ格納甩のstatic変数を初期化
+        /// </summary>
+        private void initializeDataList()
+        {
+            titleDataList = new List<TitleData>(); //CSV読み込みデータ格納リスト
+            suggestDataList = new List<SuggestData>(); //CSV読み込みデータ格納リスト
+            metaDataDataList = new List<MetaDataData>(); //CSV読み込みデータ格納リスト
+        }
+
         /// <summary>
         /// Googleキーワード検索結果のURLを取得
         /// </summary>
@@ -391,24 +411,31 @@ namespace GetGoogleSearchInfo
             string output_file_path = @".\googleSearchResult.csv";
             string strData = ""; //1行分のデータ
 
-            System.IO.StreamWriter sw = new System.IO.StreamWriter(
-                output_file_path,
-                false,
-                System.Text.Encoding.Default);
-
-            //ヘッダ書き込み
-            strData = "ID" + DELIMITER + "Keyword" + DELIMITER + "Title" + DELIMITER + "Date";
-            sw.WriteLine(strData);
-
-            foreach (var data in titleDataList)
+            try
             {
-                strData = data.id + DELIMITER
-                    + data.keyWord + DELIMITER
-                    + "\"" + data.title + "\"" + DELIMITER
-                    + data.getDate;
+                System.IO.StreamWriter sw = new System.IO.StreamWriter(output_file_path,
+                                                                   false,
+                                                                   System.Text.Encoding.Default);
+                //ヘッダ書き込み
+                strData = "ID" + DELIMITER + "Keyword" + DELIMITER + "Title" + DELIMITER + "Date";
                 sw.WriteLine(strData);
+
+                foreach (var data in titleDataList)
+                {
+                    strData = data.id + DELIMITER
+                        + data.keyWord + DELIMITER
+                        + "\"" + data.title + "\"" + DELIMITER
+                        + data.getDate;
+                    sw.WriteLine(strData);
+                }
+                sw.Close();
             }
-            sw.Close();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex + "Errorが発生しました。");
+                conponentExecControl(PROC_ERROR);
+            }
+
         }
 
         /// <summary>
@@ -419,49 +446,64 @@ namespace GetGoogleSearchInfo
             string output_file_path = @".\googleSuggestResult.csv";
             string strData = ""; //1行分のデータ
 
-            System.IO.StreamWriter sw = new System.IO.StreamWriter(
-                output_file_path,
-                false,
-                System.Text.Encoding.Default);
-
-            //ヘッダ書き込み
-            strData = "ID" + DELIMITER + "Keyword" + DELIMITER + "SuggestKeyword";
-            sw.WriteLine(strData);
-            foreach (var data in suggestDataList)
+            try
             {
-                strData = data.id + DELIMITER
-                + data.keyWord + DELIMITER
-                + "\"" + data.suggestKeyword + "\"";
+                System.IO.StreamWriter sw = new System.IO.StreamWriter(output_file_path,
+                                                                       false,
+                                                                       System.Text.Encoding.Default);
+                //ヘッダ書き込み
+                strData = "ID" + DELIMITER + "Keyword" + DELIMITER + "SuggestKeyword";
                 sw.WriteLine(strData);
+                foreach (var data in suggestDataList)
+                {
+                    strData = data.id + DELIMITER
+                    + data.keyWord + DELIMITER
+                    + "\"" + data.suggestKeyword + "\"";
+                    sw.WriteLine(strData);
+                }
+                sw.Close();
             }
-            sw.Close();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex + "Errorが発生しました。");
+                conponentExecControl(PROC_ERROR);
+            }
+
         }
 
         /// <summary>
-        /// CSV書き込み_メタディスクリプション
+        /// CSV書き込み_メタデータ
         /// </summary>
         private void csvWrite_description()
         {
-            string output_file_path = @".\metaDescriptionResult.csv";
+            string output_file_path = @".\metaDataResult.csv";
             string strData = ""; //1行分のデータ
 
-            System.IO.StreamWriter sw = new System.IO.StreamWriter(
-                output_file_path,
-                false,
-                System.Text.Encoding.Default);
 
-            //ヘッダ書き込み
-            strData = "ID" + DELIMITER + "SiteUrl" + DELIMITER + "MetaDescription";
-            sw.WriteLine(strData);
-
-            foreach (var data in metaDataDataList)
+            try
             {
-                strData = "\"" + data.id  + "\""  + DELIMITER
-                + "\"" + data.siteUrl + "\"" + DELIMITER
-                + "\"" + data.metaDescription + "\"";
+                System.IO.StreamWriter sw = new System.IO.StreamWriter(output_file_path,
+                                            false,
+                                            System.Text.Encoding.Default);
+                //ヘッダ書き込み
+                strData = "ID" + DELIMITER + "SiteUrl" + DELIMITER + "MetaKeyword" + DELIMITER + "MetaDescription";
                 sw.WriteLine(strData);
+
+                foreach (var data in metaDataDataList)
+                {
+                    strData = "\"" + data.id + "\"" + DELIMITER
+                    + "\"" + data.siteUrl + "\"" + DELIMITER
+                    + "\"" + data.metaKeyword + "\"" + DELIMITER
+                    + "\"" + data.metaDescription + "\"";
+                    sw.WriteLine(strData);
+                }
+                sw.Close();
             }
-            sw.Close();
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex + "Errorが発生しました。");
+                conponentExecControl(PROC_ERROR);
+            }
         }
 
 
@@ -469,7 +511,7 @@ namespace GetGoogleSearchInfo
         //------------------------------------------------------
         //スクレイピング処理
         //------------------------------------------------------
-        private void scrapingMetaDescriptionMain(List<string> siteUrlList)
+        private void scrapingMetaData(List<string> siteUrlList)
         {
             int count = 0;
             int id = 0;
@@ -505,7 +547,6 @@ namespace GetGoogleSearchInfo
                 {
                     metaDescription = "データを取得できませんでした。";
                 }
-
 
                 metaDataData.id = id;
                 metaDataData.siteUrl = siteUrl;
@@ -653,7 +694,7 @@ namespace GetGoogleSearchInfo
             html = replaceHtmlData(html);
 
             //メタディスクリプション抽出正規表現パターン_No1
-            pattern = "metacontent=.(.*?).name=.keyword.";
+            pattern = "<metaname=.keywords.content=.(.*?).>";
             Regex regex = new Regex(pattern);
             Match match = regex.Match(html);
 
@@ -682,6 +723,8 @@ namespace GetGoogleSearchInfo
             return metaKeyword;
             Console.WriteLine("メタディスクリプション：" + metaKeyword);
         }
+
+
     }
 }
 
