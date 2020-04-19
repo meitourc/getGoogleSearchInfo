@@ -85,7 +85,7 @@
             // 
             // button1_geMetaInfo
             // 
-            this.button1_geMetaInfo.Location = new System.Drawing.Point(78, 447);
+            this.button1_geMetaInfo.Location = new System.Drawing.Point(928, 258);
             this.button1_geMetaInfo.Name = "button1_geMetaInfo";
             this.button1_geMetaInfo.Size = new System.Drawing.Size(257, 68);
             this.button1_geMetaInfo.TabIndex = 6;
@@ -95,7 +95,7 @@
             // 
             // button1_meta_discription
             // 
-            this.button1_meta_discription.Location = new System.Drawing.Point(78, 546);
+            this.button1_meta_discription.Location = new System.Drawing.Point(78, 457);
             this.button1_meta_discription.Name = "button1_meta_discription";
             this.button1_meta_discription.Size = new System.Drawing.Size(257, 68);
             this.button1_meta_discription.TabIndex = 7;

@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace GetGoogleSearchInfo
 {
-    class MetaDescriptionData
+    class MetaDataData
     {
         public int id { get; set; }
         public string siteUrl { get; set; }
+        public string metaKeyword { get; set; }
         public string metaDescription { get; set; }
     }
 }

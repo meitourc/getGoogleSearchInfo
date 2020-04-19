@@ -40,8 +40,8 @@ namespace GetGoogleSearchInfo
         int GET_URL_NUM = 5;
         static List<TitleData> titleDataList = new List<TitleData>(); //CSV読み込みデータ格納リスト
         static List<SuggestData> suggestDataList = new List<SuggestData>(); //CSV読み込みデータ格納リスト
-        static List<MetaKeywordData> metaKeywordDataList = new List<MetaKeywordData>(); //CSV読み込みデータ格納リスト
-        static List<MetaDescriptionData> metaDescriptionDataList = new List<MetaDescriptionData>(); //CSV読み込みデータ格納リスト
+        static List<MetaDataData> metaDataDataList = new List<MetaDataData>(); //CSV読み込みデータ格納リスト
+        //static List<MetaKeywordData> metaKeywordDataList = new List<MetaKeywordData>(); //CSV読み込みデータ格納リスト
 
 
 
@@ -360,6 +360,25 @@ namespace GetGoogleSearchInfo
             return siteUrlList;
         }
 
+        /// <summary>
+        /// htmlから空行やタブ等を取り除きます。
+        /// </summary>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        private string replaceHtmlData(string html)
+        {
+            //@空白改行をリプレイスする
+            //html = html.Replace("\r", "").Replace("\n", "");
+            string beforeReplacePattern = "\\s";
+            string afterReplacePattern = "";
+            Regex regex = new Regex(beforeReplacePattern);
+            html = regex.Replace(html, afterReplacePattern);
+            //replace済みhtml出力（デバッグ甩）
+            //Console.WriteLine("----------------------------------------------------------------------------------------\n");
+            //Console.WriteLine("html:" +  html + "\n");
+            //Console.WriteLine("----------------------------------------------------------------------------------------\n");
+            return html;
+        }
 
         //------------------------------------------------------
         //CSV書き込み処理
@@ -419,30 +438,6 @@ namespace GetGoogleSearchInfo
         }
 
         /// <summary>
-        /// CSV書き込み_メタキーワード
-        /// </summary>
-        private void csvWrite_metaKeyword()
-        {
-            string output_file_path = @".\metaKeywordResult.csv";
-            string strData = ""; //1行分のデータ
-
-            System.IO.StreamWriter sw = new System.IO.StreamWriter(
-                output_file_path,
-                false,
-                System.Text.Encoding.Default);
-
-            //ヘッダ書き込み
-            strData = "ID" + DELIMITER + "keyword" + DELIMITER + "title" + DELIMITER + "date";
-            sw.WriteLine(strData);
-
-            foreach (var data in metaKeywordDataList)
-            {
-
-            }
-            sw.Close();
-        }
-
-        /// <summary>
         /// CSV書き込み_メタディスクリプション
         /// </summary>
         private void csvWrite_description()
@@ -459,7 +454,7 @@ namespace GetGoogleSearchInfo
             strData = "ID" + DELIMITER + "SiteUrl" + DELIMITER + "MetaDescription";
             sw.WriteLine(strData);
 
-            foreach (var data in metaDescriptionDataList)
+            foreach (var data in metaDataDataList)
             {
                 strData = "\"" + data.id  + "\""  + DELIMITER
                 + "\"" + data.siteUrl + "\"" + DELIMITER
@@ -480,7 +475,7 @@ namespace GetGoogleSearchInfo
             int id = 0;
             foreach (var siteUrl in siteUrlList)
             {
-                MetaDescriptionData metaDescriptionData = new MetaDescriptionData();
+                MetaDataData metaDataData = new MetaDataData();
                 if (count >= GET_URL_NUM)
                 {
                     break;
@@ -488,7 +483,19 @@ namespace GetGoogleSearchInfo
                 string targetHtml = "";
                 Console.WriteLine(siteUrl);
                 targetHtml = getHtml(siteUrl);
+                
+                //メタキーワード取得
+                string metaKeyword = "";
+                if (targetHtml != "")
+                {
+                    metaKeyword = scrapingMetaKeyword(targetHtml);
+                }
+                if (metaKeyword == "")
+                {
+                    metaKeyword = "データを取得できませんでした。";
+                }
 
+                //メタディスクリプション取得
                 string metaDescription = "";
                 if (targetHtml != "")
                 {
@@ -498,10 +505,13 @@ namespace GetGoogleSearchInfo
                 {
                     metaDescription = "データを取得できませんでした。";
                 }
-                metaDescriptionData.id = id;
-                metaDescriptionData.siteUrl = siteUrl;
-                metaDescriptionData.metaDescription = metaDescription;
-                metaDescriptionDataList.Add(metaDescriptionData);
+
+
+                metaDataData.id = id;
+                metaDataData.siteUrl = siteUrl;
+                metaDataData.metaKeyword = metaKeyword;
+                metaDataData.metaDescription = metaDescription;
+                metaDataDataList.Add(metaDataData);
 
                 id++;
                 count++;
@@ -595,20 +605,11 @@ namespace GetGoogleSearchInfo
             string metaDescription = ""; //htmlから抽出したメタディスクリプション
 
             //@空白改行をリプレイスする
-            //html = html.Replace("\r", "").Replace("\n", "");
-            string beforeReplacePattern = "\\s";
-            string afterReplacePattern = "";
-            Regex regex = new Regex(beforeReplacePattern);
-            html = regex.Replace(html, afterReplacePattern);
-            
-            //replace済みhtml出力（デバッグ甩）
-            //Console.WriteLine("----------------------------------------------------------------------------------------\n");
-            //Console.WriteLine("html:" +  html + "\n");
-            //Console.WriteLine("----------------------------------------------------------------------------------------\n");
+            html = replaceHtmlData(html);
 
             //メタディスクリプション抽出正規表現パターン_No1
             pattern = "metacontent=.(.*?).name=.description.";
-            regex = new Regex(pattern);
+            Regex regex = new Regex(pattern);
             Match match = regex.Match(html);
 
             matchGrouphNum = match.Groups.Count;
@@ -638,6 +639,49 @@ namespace GetGoogleSearchInfo
         }
 
 
+
+        /// <summary>
+        /// サイトのページからメタキーワードを抽出
+        /// </summary>
+        /// <param name="html"></param>
+        private string scrapingMetaKeyword(string html)
+        {
+            string pattern = ""; //メタディスクリプション抽出正規表現パターン
+            int matchGrouphNum = 0; //マッチ数
+            string metaKeyword = ""; //htmlから抽出したメタディスクリプション
+
+            html = replaceHtmlData(html);
+
+            //メタディスクリプション抽出正規表現パターン_No1
+            pattern = "metacontent=.(.*?).name=.keyword.";
+            Regex regex = new Regex(pattern);
+            Match match = regex.Match(html);
+
+            matchGrouphNum = match.Groups.Count;
+            //Console.WriteLine("mgn:" + matcGrouphNum); //デバッグ甩
+            if (matchGrouphNum > 0)
+            {
+                metaKeyword = match.Groups[1].ToString();
+            }
+
+            //メタディスクリプション抽出正規表現パターン_No2
+            if (metaKeyword == "")
+            {
+                //@[\"|\']を「.」に変える。
+                //メタディスクリプションスクレイピング正規表現_No2
+                pattern = "metaname=.keyword.content=.(.*?).>";
+                regex = new Regex(pattern);
+                match = regex.Match(html);
+
+                //@matchの中身の存在確認してチェック
+                if (matchGrouphNum > 0)
+                {
+                    metaKeyword = match.Groups[1].ToString();
+                }
+            }
+            return metaKeyword;
+            Console.WriteLine("メタディスクリプション：" + metaKeyword);
+        }
     }
 }
 
