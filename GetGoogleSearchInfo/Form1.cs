@@ -286,47 +286,50 @@ namespace GetGoogleSearchInfo
         /// <param name="html"></param>
         private void scrapingMetaDescription(string html)
         {
-            html = html.Replace("\r", "").Replace("\n", "");
-            string pattern = "";
+            string pattern = ""; //メタディスクリプション抽出正規表現パターン
+            int matchGrouphNum = 0; //マッチ数
+            string metaDescription = ""; //htmlから抽出したメタディスクリプション
 
             //@空白改行をリプレイスする
+            //html = html.Replace("\r", "").Replace("\n", "");
             string beforeReplacePattern = "\\s";
             string afterReplacePattern = "";
             Regex regex = new Regex(beforeReplacePattern);
             html = regex.Replace(html, afterReplacePattern);
-            //replace済みhtml出力（デバッグ甩）
-            Console.WriteLine("----------------------------------------------------------------------------------------\n");
-            Console.WriteLine("html:" +  html + "\n");
-            Console.WriteLine("----------------------------------------------------------------------------------------\n");
-
-            //メタディスクリプションスクレイピングパターン
-            pattern = "metacontent=.(.*?).name=.description.";
             
-            //正規表現でメタディスクリプション抜き出し
+            //replace済みhtml出力（デバッグ甩）
+            //Console.WriteLine("----------------------------------------------------------------------------------------\n");
+            //Console.WriteLine("html:" +  html + "\n");
+            //Console.WriteLine("----------------------------------------------------------------------------------------\n");
+
+            //メタディスクリプション抽出正規表現パターン_No1
+            pattern = "metacontent=.(.*?).name=.description.";
             regex = new Regex(pattern);
             Match match = regex.Match(html);
-            string metaDescription = match.Groups[1].ToString();
-            
 
+            matchGrouphNum = match.Groups.Count;
+            //Console.WriteLine("mgn:" + matcGrouphNum); //デバッグ甩
+            if(matchGrouphNum > 0)
+            {
+                metaDescription = match.Groups[1].ToString();
+            }
+
+            //メタディスクリプション抽出正規表現パターン_No2
             if (metaDescription == "")
             {
-                pattern = "<meta name=[\"|\']description[\"|\']content=[\"|\']([\\s\\S])[\"|\']>";
-
                 //@[\"|\']を「.」に変える。
-                pattern = "<meta name=[\"|\']description[\"|\']content=[\"|\']([\\s\\S])[\"|\']>";
+                //メタディスクリプションスクレイピング正規表現_No2
+                pattern = "metaname=.description.content=.(.*?).>";
                 regex = new Regex(pattern);
                 match = regex.Match(html);
 
                 //@matchの中身の存在確認してチェック
-                metaDescription = match.Groups[1].ToString();
+                if (matchGrouphNum > 0)
+                {
+                    metaDescription = match.Groups[1].ToString();
+                }
             }
-
-
-
             Console.WriteLine("メタディスクリプション：" + metaDescription);
-
-
-
         }
 
 
@@ -375,7 +378,7 @@ namespace GetGoogleSearchInfo
             int i = 0;
             foreach (var siteUrl in siteUrlList)
             {
-                if(i == 5)
+                if(i == 10)
                 {
                     break;
                 }
