@@ -290,41 +290,30 @@ namespace GetGoogleSearchInfo
             string pattern = "";
 
             //@空白改行をリプレイスする
-
             string beforeReplacePattern = "\\s";
             string afterReplacePattern = "";
-
-
-            //軽い
-            pattern = "meta content=[\'|\"]([\\s\\S]*?)[\'|\"].*name.*[\'|\"]description[\'|\"]";
-            pattern = "metacontent=.(.*?).name=.description.";
-            //重い
-            //pattern = ".*?meta content.*?=.*?[\'|\"]([\\s\\S]*?)[\'|\"].*name.*[\'|\"].*?description[\'|\"]";
-            //pattern = ".*meta content.*=.*[\'|\"]([\\s\\S].*)[\'|\"].*name.*[\'|\"].*description[\'|\"]";
-            //pattern = "meta content\\s+=\\s*[\'|\"]([\\s\\S]\\s*)[\'|\"]\\s*name\\s*[\'|\"]\\s*description[\'|\"]";
-
-
-
             Regex regex = new Regex(beforeReplacePattern);
             html = regex.Replace(html, afterReplacePattern);
+            //replace済みhtml出力（デバッグ甩）
+            Console.WriteLine("----------------------------------------------------------------------------------------\n");
+            Console.WriteLine("html:" +  html + "\n");
+            Console.WriteLine("----------------------------------------------------------------------------------------\n");
 
-            Console.WriteLine("html:" +  html);
-
+            //メタディスクリプションスクレイピングパターン
+            pattern = "metacontent=.(.*?).name=.description.";
+            
+            //正規表現でメタディスクリプション抜き出し
             regex = new Regex(pattern);
             Match match = regex.Match(html);
             string metaDescription = match.Groups[1].ToString();
+            
 
             if (metaDescription == "")
             {
-                //pattern = "<.*?meta.*?name.*?=.*?[\"|\']description.*?[\"|\'].*?content.*?=.*?[\"|\']([\\s\\S]*?)[\"|\'].*?>";
-                //pattern = "<.*?meta.*?name.*?=.*?[\"|\']description.*?[\"|\'].*?content.*?=.*?[\"|\']([\\s\\S].*?)[\"|\'].*?>";
-
-                //pattern = "<meta\\s*name\\s*=\\s*[\"|\']description\\s*[\"|\']\\s*content\\s*=\\s*[\"|\']([\\s\\S]\\s*)[\"|\']\\s*>";
                 pattern = "<meta name=[\"|\']description[\"|\']content=[\"|\']([\\s\\S])[\"|\']>";
 
                 //@[\"|\']を「.」に変える。
                 pattern = "<meta name=[\"|\']description[\"|\']content=[\"|\']([\\s\\S])[\"|\']>";
-
                 regex = new Regex(pattern);
                 match = regex.Match(html);
 
@@ -336,44 +325,7 @@ namespace GetGoogleSearchInfo
 
             Console.WriteLine("メタディスクリプション：" + metaDescription);
 
-            //// HtmlParserクラスをインスタンス化
-            //var parser = new HtmlParser();
-            //// HtmlParserクラスのParserメソッドを使用してパースする。
-            //// Parserメソッドの戻り値の型はIHtmlDocument
-            //var htmlDocument = parser.ParseDocument(html);
-            //Console.WriteLine(html);
 
-            //var urlElements = htmlDocument.GetElementsByName("description");
-
-            //Console.WriteLine(urlElements);
-
-
-            //int id = 1;
-            //foreach (Match m in matche)
-            //{
-            //
-            //    Console.WriteLine(m);
-
-
-            //string pattern2 = "\\)\">(.*?)<";
-            //string siteTitle = m.Groups[1].ToString();
-
-            //Regex regex = new Regex(pattern2);
-            //Match match = regex.Match(siteTitle);
-            //siteTitle = match.Groups[1].ToString();
-
-            //SearchResultData searchResultData = new SearchResultData();
-            //searchResultData.id = id;
-            //searchResultData.keyWord = KEY_WORD;
-            //searchResultData.title = @siteTitle;
-            //DateTime dt = DateTime.Now;
-            //searchResultData.getDate = dt.ToString();
-
-            //searchResultDataList.Add(searchResultData);
-            //Console.WriteLine(siteTitle);
-            //Console.WriteLine("\n--takuma--\n");
-            //id++;
-            //}
 
         }
 
