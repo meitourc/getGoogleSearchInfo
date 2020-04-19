@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GetGoogleSearchInfo
 {
-    class SearchResultData
+    class TitleData
     {
         public int id { get; set; }
         public string keyWord { get; set; }

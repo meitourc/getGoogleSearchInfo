@@ -7,7 +7,7 @@ URL:https://crowdworks.jp/public/jobs/4933744
 今回作成しない：モジュール2：google検索結果1ページ目のサイトの種類をURLから判定するツール
 モジュール3：google検索結果1ページ目のサイトの見出しの一覧を作成するツール
 モジュール4：google検索結果1ページ目のタイトル、サジェストを抜き出して重複を排除して一覧にするツール
-モジュール5：google検索結果1ページ目のタイトル、メタキーワード、メタディスクリプション、コンテンツを抜き出して一覧にするツール
+モジュール5：google検索結果1ページ目のタイトル、メタキーワード、メタディスクリプション、コンテンツを抜き出して一覧にするツール（※takuma追記：今回はコンテンツの部分は実装しない）
 **/
 
 using AngleSharp.Html.Parser;
@@ -34,22 +34,101 @@ namespace GetGoogleSearchInfo
         static string DELIMITER = ","; //CSV読み書き用区切り文字
         static string DOUBLE_QUOTATION = "\""; //ダブルクォーテーション
         static string LINE_FEED_CODE = "\r\n"; //改行コード
-        string KEY_WORD = "";
-        static List<SearchResultData> searchResultDataList = new List<SearchResultData>(); //CSV読み込みデータ格納リスト
+        string KEY_WORD = "プログラミング";
+        int GET_URL_NUM = 5;
+        static List<TitleData> titleDataList = new List<TitleData>(); //CSV読み込みデータ格納リスト
+        static List<SuggestData> suggestDataList = new List<SuggestData>(); //CSV読み込みデータ格納リスト
+        static List<MetaKeywordData> metaKeywordDataList = new List<MetaKeywordData>(); //CSV読み込みデータ格納リスト
+        static List<MetaDescriptionData> metaDescriptionDataList = new List<MetaDescriptionData>(); //CSV読み込みデータ格納リスト
 
+
+
+
+
+        //------------------------------------------------------
+        //コンストラクタ
+        //------------------------------------------------------
         public Form1()
         {
             InitializeComponent();
         }
 
+        //------------------------------------------------------
+        //初期処理
+        //------------------------------------------------------
         private void Form1_Load(object sender, EventArgs e)
         {
-            textBox1.Text = "プログラミング";
+            textBox1.Text = KEY_WORD;
+            textBox_UrlDataNum.Text = GET_URL_NUM.ToString();
+            label3.Visible = false;
+            button_exec_control();
+        }
+
+        //------------------------------------------------------
+        //コンポーネント制御関連
+        //------------------------------------------------------
+
+        /// <summary>
+        /// キーワードテキストボックス変更時処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
             button_exec_control();
         }
 
         /// <summary>
-        /// データ取得ボタン
+        /// URL取得数テキストボックス変更時処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBox_UrlDataNum_TextChanged(object sender, EventArgs e)
+        {
+            button_exec_control();
+        }
+
+        /// <summary>
+        /// textBox_getUrlDataNumを数字のみの入力に制御
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBox_getUrlDataNum_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if ((e.KeyChar < '0' || '9' < e.KeyChar) && e.KeyChar != '\b')
+            {
+                label3.Visible = true;
+                e.Handled = true;
+
+            }
+            else
+            {
+                label3.Visible = false;
+            }
+        }
+
+        /// <summary>
+        /// 実行ボタンの活性/非活性のコントロール処理
+        /// </summary>
+        private void button_exec_control()
+        {
+            if (textBox1.Text != "" && textBox_UrlDataNum.Text != "")
+            {
+                button_getData.Enabled = true;
+                button1_meta_discription.Enabled = true;
+            }
+            else
+            {
+                button_getData.Enabled = false;
+                button1_meta_discription.Enabled = false;
+            }
+        }
+
+        //------------------------------------------------------
+        //実行ボタン
+        //------------------------------------------------------
+        /// <summary>
+        /// 見出し一覧取得ボタン
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -66,34 +145,93 @@ namespace GetGoogleSearchInfo
             scrapingData(html);
 
             //CSV書き込み
-            csvWrite();
+            csvWrite_TitleList();
+        }
+
+        /// <summary>
+        /// サジェスト取得ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_getSuggest_Click(object sender, EventArgs e)
+        {
+
+            string suggestKeyword = textBox1.Text;
+            //string suggestUrl = @"http://www.google.com/complete/search?hl=en&q=" + suggestKeyword + @"&output=toolbar";
+            string suggestUrl = @"http://www.google.com/complete/search?hl=ja&q=" + suggestKeyword + @"&output=toolbar";
+
+            string html = getHtml(suggestUrl);
+            getSuggestData(html);
         }
 
 
         /// <summary>
-        /// 実行ボタンの活性/非活性のコントロール処理
+        /// メタキーワード取得ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_geMetaInfo_Click(object sender, EventArgs e)
+        {
+            string url = "https://ja.wikipedia.org/wiki/%E3%83%86%E3%82%B9%E3%83%88";
+            var req = (HttpWebRequest)WebRequest.Create(url);
+            req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
+            string html = "";
+            //指定したURLに対してrequestを投げてresponseを取得
+            using (var res = (HttpWebResponse)req.GetResponse())
+            using (var resSt = res.GetResponseStream())
+            using (var sr = new StreamReader(resSt, Encoding.UTF8))
+            {
+                //HTMLを取得する。
+                html = sr.ReadToEnd();
+            }
+        }
+
+        /// <summary>
+        /// メタディスクリプション取得ボタン
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_meta_discription_Click(object sender, EventArgs e)
+        {
+            string url = getKeyWordUrl();
+            string html = getHtml(url);
+            List<string> siteUrlList = getSiteUrlList(html);
+
+            int count = 0;
+            foreach (var siteUrl in siteUrlList)
+            {
+                if (count >= GET_URL_NUM)
+                {
+                    break;
+                }
+                string targetHtml = "";
+                Console.WriteLine(siteUrl);
+                targetHtml = getHtml(siteUrl);
+
+                if (targetHtml != "")
+                {
+                    scrapingMetaDescription(targetHtml);
+                }
+                count++;
+            }
+        }
+
+        //------------------------------------------------------
+        //共通処理
+        //------------------------------------------------------
+        /// <summary>
+        /// Googleキーワード検索結果のURLを取得
         /// </summary>
         private string getKeyWordUrl()
         {
             KEY_WORD = textBox1.Text;
+            if (textBox_UrlDataNum.Text != "")
+            {
+                GET_URL_NUM = int.Parse(textBox_UrlDataNum.Text);
+            }
+
             string url = "https://www.google.co.jp/search?q= " + KEY_WORD + "&ie=UTF-8&oe=UTF-8&num=20";
             return url;
-        }
-
-
-        /// <summary>
-        /// 実行ボタンの活性/非活性のコントロール処理
-        /// </summary>
-        private void button_exec_control()
-        {
-            if (textBox1.Text != "")
-            {
-                button_getData.Enabled = true;
-            }
-            else
-            {
-                button_getData.Enabled = false;
-            }
         }
 
         ///// <summary>
@@ -116,14 +254,152 @@ namespace GetGoogleSearchInfo
                     //HTMLを取得する。
                     html = sr.ReadToEnd();
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.WriteLine(ex + "Errorが発生しました。");
             }
             return html;
         }
 
+        /// <summary>
+        /// google検索結果からサイトのURL一覧を取得
+        /// </summary>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        private List<string> getSiteUrlList(string html)
+        {
+            html = html.Replace("\r", "").Replace("\n", "");
+            string pattern = "";
+            pattern = @"<h3.*?>(.*?)</h3>";
+            MatchCollection matche = Regex.Matches(html, pattern);
 
+            var siteUrlList = new List<string>();
+
+            int id = 1;
+            foreach (Match m in matche)
+            {
+                string pattern2 = "<a href=\"(.*?)\"";
+                string siteTitle = m.Groups[1].ToString();
+
+                Regex regex = new Regex(pattern2);
+                Match match = regex.Match(siteTitle);
+                siteTitle = match.Groups[1].ToString();
+                siteUrlList.Add(siteTitle);
+                //Console.WriteLine(siteTitle);
+            }
+            return siteUrlList;
+        }
+
+
+        //------------------------------------------------------
+        //CSV書き込み処理
+        //------------------------------------------------------
+        /// <summary>
+        /// CSV書き込み_見出し一覧
+        /// </summary>
+        private void csvWrite_TitleList()
+        {
+            string output_file_path = @".\googleSearchResult.csv";
+            string strData = ""; //1行分のデータ
+
+            System.IO.StreamWriter sw = new System.IO.StreamWriter(
+                output_file_path,
+                false,
+                System.Text.Encoding.Default);
+
+            //ヘッダ書き込み
+            strData = "id" + DELIMITER + "keyword" + DELIMITER + "title" + DELIMITER + "date";
+            sw.WriteLine(strData);
+
+            foreach (var data in titleDataList)
+            {
+                strData = data.id + DELIMITER
+                    + data.keyWord + DELIMITER
+                    + "\"" + data.title + "\"" + DELIMITER
+                    + data.getDate;
+                sw.WriteLine(strData);
+            }
+            sw.Close();
+        }
+
+        /// <summary>
+        /// CSV書き込み_サジェスト
+        /// </summary>
+        private void csvWrite_Suggest()
+        {
+            string output_file_path = @".\googleSuggest.csv";
+            string strData = ""; //1行分のデータ
+
+            System.IO.StreamWriter sw = new System.IO.StreamWriter(
+                output_file_path,
+                false,
+                System.Text.Encoding.Default);
+
+            //ヘッダ書き込み
+            strData = "id" + DELIMITER + "keyword" + DELIMITER + "title" + DELIMITER + "date";
+            sw.WriteLine(strData);
+
+            foreach (var data in suggestDataList)
+            {
+
+            }
+            sw.Close();
+        }
+
+        /// <summary>
+        /// CSV書き込み_メタキーワード
+        /// </summary>
+        private void csvWrite_metaKeyword()
+        {
+            string output_file_path = @".\googleSearchResult.csv";
+            string strData = ""; //1行分のデータ
+
+            System.IO.StreamWriter sw = new System.IO.StreamWriter(
+                output_file_path,
+                false,
+                System.Text.Encoding.Default);
+
+            //ヘッダ書き込み
+            strData = "id" + DELIMITER + "keyword" + DELIMITER + "title" + DELIMITER + "date";
+            sw.WriteLine(strData);
+
+            foreach (var data in metaKeywordDataList)
+            {
+
+            }
+            sw.Close();
+        }
+
+        /// <summary>
+        /// CSV書き込み_メタディスクリプション
+        /// </summary>
+        private void csvWrite_description()
+        {
+            string output_file_path = @".\googleSearchResult.csv";
+            string strData = ""; //1行分のデータ
+
+            System.IO.StreamWriter sw = new System.IO.StreamWriter(
+                output_file_path,
+                false,
+                System.Text.Encoding.Default);
+
+            //ヘッダ書き込み
+            strData = "id" + DELIMITER + "keyword" + DELIMITER + "title" + DELIMITER + "date";
+            sw.WriteLine(strData);
+
+            foreach (var data in metaDescriptionDataList)
+            {
+
+            }
+            sw.Close();
+        }
+
+
+
+        //------------------------------------------------------
+        //スクレイピング処理
+        //------------------------------------------------------
         /// <summary>
         /// グーグル検索結果取得処理
         /// </summary>
@@ -139,8 +415,13 @@ namespace GetGoogleSearchInfo
 
 
             int id = 1;
+            int count = 0;
             foreach (Match m in matche)
             {
+                if(count >= GET_URL_NUM)
+                {
+                    break;
+                }
                 string pattern2 = "\\)\">(.*?)<";
                 string  siteTitle = m.Groups[1].ToString();
 
@@ -148,75 +429,27 @@ namespace GetGoogleSearchInfo
                 Match match = regex.Match(siteTitle);
                 siteTitle = match.Groups[1].ToString();
 
-                SearchResultData searchResultData = new SearchResultData();
+                TitleData searchResultData = new TitleData();
                 searchResultData.id = id;
                 searchResultData.keyWord = KEY_WORD;
                 searchResultData.title = @siteTitle;
                 DateTime dt = DateTime.Now;
                 searchResultData.getDate = dt.ToString();
 
-                searchResultDataList.Add(searchResultData);
+                titleDataList.Add(searchResultData);
                 Console.WriteLine(siteTitle);
                 Console.WriteLine("\n--takuma--\n");
                 id++;
+                count++;
             }
         }
 
-        /// <summary>
-        /// CSV書き込み
-        /// </summary>
-        private void csvWrite()
-        {
-            string output_file_path = @".\googleSearchResult.csv";
-            System.IO.StreamWriter sw = new System.IO.StreamWriter(
-                output_file_path,
-                false,
-                System.Text.Encoding.Default);
-
-            string strData = ""; //1行分のデータ
-
-            //ヘッダ書き込み
-            strData = "id" + DELIMITER + "keyword" + DELIMITER + "title" + DELIMITER + "date";
-            sw.WriteLine(strData);
-
-            foreach (var data in searchResultDataList)
-            {
-                strData = data.id + DELIMITER
-                    + data.keyWord + DELIMITER
-                    + "\"" + data.title + "\"" + DELIMITER
-                    + data.getDate;
-                sw.WriteLine(strData);
-            }
-            sw.Close();
-        }
     
         /// <summary>
-        /// キーワードテキストボックス変更時処理
+        /// サジェストデータ取得処理
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void textBox1_TextChanged(object sender, EventArgs e)
-        {
-            button_exec_control();
-        }
-
-        /// <summary>
-        /// サジェスト取得
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button1_getSuggest_Click(object sender, EventArgs e)
-        {
-            
-            string suggestKeyword = textBox1.Text;
-            //string suggestUrl = @"http://www.google.com/complete/search?hl=en&q=" + suggestKeyword + @"&output=toolbar";
-            string suggestUrl = @"http://www.google.com/complete/search?hl=ja&q=" + suggestKeyword + @"&output=toolbar";
-
-            string html = getHtml(suggestUrl);
-            getSuggestData(html);
-        }
-
-
+        /// <param name="html"></param>
+        /// <returns></returns>
         private List<string> getSuggestData(string html)
         {
             html = html.Replace("\r", "").Replace("\n", "");
@@ -234,50 +467,6 @@ namespace GetGoogleSearchInfo
                 Console.WriteLine(siteTitle);
             }
             return suggetDataList;
-        }
-
-        private static string Sanitize(string xml)
-        {
-            var sb = new System.Text.StringBuilder();
-
-            foreach (var c in xml)
-            {
-                var code = (int)c;
-
-                if (code == 0x9 ||
-                    code == 0xa ||
-                    code == 0xd ||
-                    (0x20 <= code && code <= 0xd7ff) ||
-                    (0xe000 <= code && code <= 0xfffd) ||
-                    (0x10000 <= code && code <= 0x10ffff))
-                {
-                    sb.Append(c);
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// メタデータ取得
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button1_geMetaInfo_Click(object sender, EventArgs e)
-        {
-            string url = "https://ja.wikipedia.org/wiki/%E3%83%86%E3%82%B9%E3%83%88";
-            var req = (HttpWebRequest)WebRequest.Create(url);
-            req.UserAgent = "Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 70.0.3538.77 Safari / 537.36";
-            string html = "";
-            //指定したURLに対してrequestを投げてresponseを取得
-            using (var res = (HttpWebResponse)req.GetResponse())
-            using (var resSt = res.GetResponseStream())
-            using (var sr = new StreamReader(resSt, Encoding.UTF8))
-            {
-                //HTMLを取得する。
-                html = sr.ReadToEnd();
-            }
-
         }
 
         /// <summary>
@@ -333,74 +522,6 @@ namespace GetGoogleSearchInfo
         }
 
 
-        /// <summary>
-        /// google検索結果からサイトのURLを抽出
-        /// </summary>
-        /// <param name="html"></param>
-        /// <returns></returns>
-        private List<string> getSiteUrlList(string html)
-        {
-            html = html.Replace("\r", "").Replace("\n", "");
-            string pattern = "";
-            pattern = @"<h3.*?>(.*?)</h3>";
-            MatchCollection matche = Regex.Matches(html, pattern);
-
-            var siteUrlList = new List<string>();
-
-            int id = 1;
-            foreach (Match m in matche)
-            {
-                string pattern2 = "<a href=\"(.*?)\"";
-                string siteTitle = m.Groups[1].ToString();
-
-                Regex regex = new Regex(pattern2);
-                Match match = regex.Match(siteTitle);
-                siteTitle = match.Groups[1].ToString();
-                siteUrlList.Add(siteTitle);
-                //Console.WriteLine(siteTitle);
-            }
-            return siteUrlList;
-        }
-
-
-        /// <summary>
-        /// メタディスクリプション取得
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void button1_meta_discription_Click(object sender, EventArgs e)
-        {
-            string url = getKeyWordUrl();
-            string html = getHtml(url);
-            List<string> siteUrlList = getSiteUrlList(html);
-
-
-            int i = 0;
-            foreach (var siteUrl in siteUrlList)
-            {
-                if(i == 10)
-                {
-                    break;
-                }
-
-                string targetHtml = "";
-                Console.WriteLine(siteUrl);
-                targetHtml = getHtml(siteUrl);
-
-                if (targetHtml != "")
-                {
-                    scrapingMetaDescription(targetHtml);
-                }
-                i++;
-            }
-
-            //string targetHtml2 = "";
-            //targetHtml2 = getHtml("https://www.amazon.co.jp/%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0-%E3%82%B3%E3%83%B3%E3%83%94%E3%83%A5%E3%83%BC%E3%82%BF%E3%83%BB%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%BC%E3%83%8D%E3%83%83%E3%83%88-%E5%92%8C%E6%9B%B8/b?ie=UTF8&amp;node=492352");
-            //if(targetHtml2 != "")
-            //{
-            //    scrapingMetaDescription(targetHtml2);
-            //}
-        }
     }
 }
 
